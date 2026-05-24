@@ -1,0 +1,69 @@
+return {
+	{
+		"nvim-treesitter/nvim-treesitter",
+		build = ":TSUpdate",
+		lazy = false,
+		init = function()
+			local parsers = {
+				"lua",
+				"vim",
+				"vimdoc",
+				"query",
+				"javascript",
+				"typescript",
+				"tsx",
+				"html",
+				"css",
+				"json",
+				"gitignore",
+				"go",
+        "python",
+        "bash",
+        "gotmpl",
+        "json",
+        "csv",
+        "sql",
+        "ssh_config",
+        "git_config",
+        "gitignore",
+			}
+
+			local group = vim.api.nvim_create_augroup("PranavTreesitter", { clear = true })
+			vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+				group = group,
+				callback = function()
+					if vim.bo.buftype ~= "" then
+						return
+					end
+
+					pcall(vim.treesitter.start, 0)
+				end,
+			})
+
+			vim.api.nvim_create_autocmd("User", {
+				group = group,
+				pattern = "VeryLazy",
+				once = true,
+				callback = function()
+					require("nvim-treesitter").install(parsers)
+				end,
+			})
+		end,
+	},
+	{
+		"nvim-treesitter/nvim-treesitter-textobjects",
+		lazy = false,
+		config = function()
+			require("nvim-treesitter-textobjects").setup({
+				select = {
+					enable = true,
+					lookahead = true,
+					keymaps = {
+						["af"] = "@function.outer",
+						["if"] = "@function.inner",
+					},
+				},
+			})
+		end,
+	},
+}
